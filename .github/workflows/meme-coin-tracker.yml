@@ -31,18 +31,18 @@ jobs:
 
           rows=$(jq -r --argjson trending "$trending" '
             ($trending.coins // [] | map(.item.id)) as $trending_ids |
-            map(select((.market_cap // 0) >= 20000000 and (.total_volume // 0) >= 1000000)) |
+            map(select((.market_cap // 0) >= 5000000 and (.market_cap // 0) <= 150000000 and (.total_volume // 0) >= 500000)) |
             map(. + {score: (((if (.id | IN($trending_ids[])) then 2 else 0 end) +
-              (if (.price_change_percentage_24h // -999) > 0 then 1 else 0 end) +
+              (if ((.price_change_percentage_24h // -999) >= 3 and (.price_change_percentage_24h // -999) <= 20) then 2 else 0 end) +
               (if (.price_change_percentage_7d_in_currency // -999) > 0 then 1 else 0 end) +
-              (if ((.total_volume // 0) / (.market_cap // 1)) >= 0.1 then 2 else 0 end))}) |
+              (if ((.total_volume // 0) / (.market_cap // 1)) >= 0.05 then 2 else 0 end))}) |
             sort_by(-.score, -(.total_volume // 0)) | .[0:5] |
-            .[] | "- \(.symbol | ascii_upcase) (\(.name)): $\(.current_price) | 24h \((.price_change_percentage_24h // 0) | round)% | 7d \((.price_change_percentage_7d_in_currency // 0) | round)% | volume $\((.total_volume / 1000000) | round)M | narrative proxy: \(if (.id | IN($trending_ids[])) then \"trending + liquid\" else \"liquid + active\" end)"' <<<"$markets")
+            .[] | "- \(.symbol | ascii_upcase) (\(.name)): $\(.current_price) | 24h \((.price_change_percentage_24h // 0) | round)% | volume $\((.total_volume / 1000000) | round)M | market cap $\((.market_cap / 1000000) | round)M | attention proxy: \(if (.id | IN($trending_ids[])) then \"currently trending\" else \"active volume\" end)"' <<<"$markets")
 
           if [[ -z "$rows" ]]; then
-            message="Meme Coin Tracker — no candidates passed the $20M market-cap and $1M daily-volume filters today."
+            message="Meme Coin Tracker - no candidates passed the $5M-$150M market-cap and $500K daily-volume filters today."
           else
-            message="Meme Coin Tracker — $(date -u +%Y-%m-%d)\n\nCandidates with the strongest current price, volume, and search-interest signals:\n$rows\n\nThis is a market-data screen, not financial advice. Check the chart, liquidity, contract, and narrative before acting."
+            message="Meme Coin Tracker - $(date -u +%Y-%m-%d)\n\nEarly/mid-cycle candidates with moderate momentum, active volume, and a $5M-$150M market cap:\n$rows\n\nAttention proxy is not narrative proof. Verify the catalyst, community, liquidity, contract, and chart before acting. This is not financial advice."
           fi
 
           curl --fail --silent --show-error -X POST \
