@@ -1,12 +1,12 @@
 {
   "heartbeat": {
     "last_dispatch": "2026-09-12T05:42:46Z",
-    "last_status": "dispatched",
-    "last_failed": "2026-09-11T23:43:03Z",
-    "total_runs": 62,
+    "last_status": "failed",
+    "last_failed": "2026-09-12T05:43:10Z",
+    "total_runs": 63,
     "total_successes": 0,
-    "total_failures": 62,
-    "consecutive_failures": 62,
+    "total_failures": 63,
+    "consecutive_failures": 63,
     "success_rate": 0
   },
   "token-movers": {
